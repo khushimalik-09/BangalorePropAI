@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BangalorePropAI - Real Estate Price Prediction</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100%;
+      color: #2d3748;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 4rem;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .header h1 {
+      font-size: 4rem;
+      font-weight: 800;
+      color: white;
+      margin: 0 0 1rem 0;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .header p {
+      font-size: 1.3rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0;
+      font-weight: 400;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.1),
+        0 1px 0px rgba(255, 255, 255, 0.2) inset,
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+      padding: 3rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow:
+        0 30px 60px rgba(0, 0, 0, 0.15),
+        0 1px 0px rgba(255, 255, 255, 0.2) inset,
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 1.25rem 1.5rem;
+      border: 2px solid rgba(226, 232, 240, 0.8);
+      border-radius: 16px;
+      font-size: 1.1rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      box-sizing: border-box;
+      font-weight: 500;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow:
+        0 0 0 4px rgba(102, 126, 234, 0.15),
+        0 8px 25px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+      background: white;
+    }
+
+    .form-input:hover,
+    .form-select:hover {
+      border-color: #a0aec0;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .predict-btn {
+      width: 100%;
+      padding: 1.5rem 2rem;
+      background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .predict-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .predict-btn:hover::before {
+      left: 100%;
+    }
+
+    .predict-btn:hover {
+      background: linear-gradient(135deg, #1557b0 0%, #3367d6 100%);
+      transform: translateY(-3px);
+      box-shadow:
+        0 15px 35px rgba(26, 115, 232, 0.4),
+        0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .predict-btn:active {
+      transform: translateY(-1px);
+    }
+
+    .predict-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+      background: #a0aec0;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      color: #667eea;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      position: relative;
+    }
+
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(102, 126, 234, 0.3);
+      border-radius: 50%;
+      border-top-color: #667eea;
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    .loading.show {
+      display: block;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .result-card {
+      display: none;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .result-card.show {
+      display: block;
+      animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .price-main {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin: 0 0 1rem 0;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      letter-spacing: -0.02em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .price-rupees {
+      font-size: 1.4rem;
+      opacity: 0.95;
+      margin: 0 0 1.5rem 0;
+      font-weight: 500;
+      position: relative;
+      z-index: 1;
+    }
+
+    .model-version {
+      font-size: 1rem;
+      opacity: 0.8;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes shimmer {
+
+      0%,
+      100% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+      }
+
+      50% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+      }
+    }
+
+    .error-message {
+      display: none;
+      background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+      color: #c53030;
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-top: 1.5rem;
+      border: 2px solid rgba(197, 48, 48, 0.2);
+      font-size: 1rem;
+      font-weight: 500;
+      box-shadow: 0 8px 25px rgba(197, 48, 48, 0.15);
+      position: relative;
+    }
+
+    .error-message::before {
+      content: '⚠️';
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+    }
+
+    .error-message.show {
+      display: block;
+      animation: slideInDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .validation-error {
+      color: #c53030;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      display: none;
+      font-weight: 500;
+      padding: 0.5rem 0;
+    }
+
+    .validation-error::before {
+      content: '❌';
+      margin-right: 0.5rem;
+    }
+
+    .validation-error.show {
+      display: block;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .form-input.error,
+    .form-select.error {
+      border-color: #c53030;
+      box-shadow:
+        0 0 0 4px rgba(197, 48, 48, 0.15),
+        0 4px 15px rgba(197, 48, 48, 0.1);
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-5px);
+      }
+
+      75% {
+        transform: translateX(5px);
+      }
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 2.2rem;
+      }
+
+      .header p {
+        font-size: 1rem;
+      }
+
+      .card {
+        padding: 1.5rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .price-main {
+        font-size: 2rem;
+      }
+    }
+  </style>
+  <style>
+    @view-transition {
+      navigation: auto;
+    }
+  </style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+</head>
+
+<body>
+  <div class="container"><!-- Header -->
+    <header class="header">
+      <h1>BangalorePropAI</h1>
+      <p>AI-based real estate price prediction for Bangalore properties</p>
+    </header><!-- Prediction Form -->
+    <main class="card">
+      <form id="predictionForm">
+        <div class="form-group"><label for="totalSqft">Total Square Feet</label> <input type="number" id="totalSqft"
+            name="totalSqft" class="form-input" placeholder="Enter total square feet" min="1" step="0.01" required>
+          <div class="validation-error" id="totalSqftError"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label for="bhk">BHK</label> <input type="number" id="bhk" name="bhk"
+              class="form-input" placeholder="Number of bedrooms" min="1" max="10" required>
+            <div class="validation-error" id="bhkError"></div>
+          </div>
+          <div class="form-group"><label for="bathrooms">Bathrooms</label> <input type="number" id="bathrooms"
+              name="bathrooms" class="form-input" placeholder="Number of bathrooms" min="1" max="10" step="0.5"
+              required>
+            <div class="validation-error" id="bathroomsError"></div>
+          </div>
+        </div>
+        <div class="form-group"><label for="location">Location</label> <select id="location" name="location"
+            class="form-select" required>
+            <option value="">Select a location...</option>
+          </select>
+          <div class="validation-error" id="locationError"></div>
+        </div><button type="submit" class="predict-btn" id="predictBtn"> Predict Property Price </button>
+        <div class="loading" id="loading">
+          Analyzing property data...
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+      </form>
+    </main><!-- Prediction Result -->
+    <div class="card result-card" id="resultCard">
+      <h2 style="margin: 0 0 1rem 0; font-size: 1.5rem;">Predicted Price</h2>
+      <div class="price-main" id="priceLakhs">
+        ₹ 0.00 Lakhs
+      </div>
+      <div class="price-rupees" id="priceRupees">
+        ₹ 0
+      </div>
+      <p class="model-version" id="modelVersion">Model Version: v1.0</p>
+    </div><!-- How it Works Section -->
+    <div class="card">
+      <h2 style="margin: 0 0 1rem 0; font-size: 1.5rem; color: #2d3748;">How it works</h2>
+      <p style="margin: 0; color: #4a5568; line-height: 1.6; font-size: 1rem;">This tool uses a machine learning model
+        trained on the Bangalore property dataset to estimate housing prices based on area, BHK, bathrooms, and
+        locality.</p>
+    </div>
+  </div><!-- Footer -->
+  <footer
+    style="text-align: center; padding: 3rem 1rem; color: rgba(255, 255, 255, 0.7); font-size: 1rem; font-weight: 500; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); animation: fadeInUp 0.8s ease-out 0.6s both;">
+    ✨ Built with FastAPI, React, and Machine Learning ✨
+  </footer>
+  <script>
+    // API Configuration
+    const API_BASE_URL = 'http://localhost:8000'; // Update this to your backend URL
+
+    // DOM Elements
+    const form = document.getElementById('predictionForm');
+    const locationSelect = document.getElementById('location');
+    const predictBtn = document.getElementById('predictBtn');
+    const loading = document.getElementById('loading');
+    const errorMessage = document.getElementById('errorMessage');
+    const resultCard = document.getElementById('resultCard');
+    const priceLakhs = document.getElementById('priceLakhs');
+    const priceRupees = document.getElementById('priceRupees');
+    const modelVersion = document.getElementById('modelVersion');
+
+    // Initialize the application
+    async function initializeApp() {
+      await loadLocations();
+    }
+
+    // Load locations from backend
+    async function loadLocations() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/metadata`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Clear existing options except the first one
+        locationSelect.innerHTML = '<option value="">Select a location...</option>';
+
+        // Add locations to dropdown
+        if (data.locations && Array.isArray(data.locations)) {
+          data.locations.forEach(location => {
+            const option = document.createElement('option');
+            option.value = location;
+            option.textContent = location;
+            locationSelect.appendChild(option);
+          });
+        } else {
+          throw new Error('Invalid response format');
+        }
+      } catch (error) {
+        console.error('Error loading locations:', error);
+        showError('Failed to load locations. Please check your connection and try again.');
+
+        // Add some fallback locations
+        const fallbackLocations = [
+          'Whitefield', 'Electronic City', 'Koramangala', 'Indiranagar',
+          'Jayanagar', 'Marathahalli', 'HSR Layout', 'Banashankari',
+          'Rajajinagar', 'Malleshwaram'
+        ];
+
+        fallbackLocations.forEach(location => {
+          const option = document.createElement('option');
+          option.value = location;
+          option.textContent = location;
+          locationSelect.appendChild(option);
+        });
+      }
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Clear previous validation errors
+      clearValidationErrors();
+
+      const formData = new FormData(form);
+      const data = {
+        total_sqft: parseFloat(formData.get('totalSqft')),
+        bhk: parseInt(formData.get('bhk')),
+        bath: parseFloat(formData.get('bathrooms')),
+        location: formData.get('location')
+      };
+
+      // Validate inputs
+      let hasErrors = false;
+
+      if (!data.total_sqft || data.total_sqft <= 0) {
+        showValidationError('totalSqft', 'Please enter a valid square feet value');
+        hasErrors = true;
+      }
+
+      if (!data.bhk || data.bhk <= 0 || data.bhk > 10) {
+        showValidationError('bhk', 'Please enter a valid BHK (1-10)');
+        hasErrors = true;
+      }
+
+      if (!data.bath || data.bath <= 0 || data.bath > 10) {
+        showValidationError('bathrooms', 'Please enter a valid number of bathrooms (1-10)');
+        hasErrors = true;
+      }
+
+      if (!data.location) {
+        showValidationError('location', 'Please select a location');
+        hasErrors = true;
+      }
+
+      if (hasErrors) {
+        return;
+      }
+
+      await predictPrice(data);
+    });
+
+    // Make prediction API call
+    async function predictPrice(data) {
+      try {
+        showLoading(true);
+        hideError();
+        hideResult();
+
+        const response = await fetch(`${API_BASE_URL}/api/predict`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // backend returns predicted_price_lakhs; older code used estimated_price
+        const priceLakhs = (result.predicted_price_lakhs ?? result.estimated_price ?? result.predicted_price ?? null);
+
+        if (priceLakhs !== null && !isNaN(Number(priceLakhs))) {
+          displayResult(Number(priceLakhs));
+        } else {
+          throw new Error('Invalid response format');
+        }
+
+      } catch (error) {
+        console.error('Error predicting price:', error);
+        showError('Server error. Try again.');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Display prediction result
+    function displayResult(priceLakhsValue) {
+      const priceInRupees = priceLakhsValue * 100000;
+
+      priceLakhs.textContent = `₹ ${priceLakhsValue.toFixed(2)} Lakhs`;
+      priceRupees.textContent = `₹ ${formatIndianNumber(priceInRupees)}`;
+
+      resultCard.classList.add('show');
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Format number in Indian numbering system
+    function formatIndianNumber(num) {
+      const numStr = Math.round(num).toString();
+      const lastThree = numStr.substring(numStr.length - 3);
+      const otherNumbers = numStr.substring(0, numStr.length - 3);
+
+      if (otherNumbers !== '') {
+        return otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + lastThree;
+      } else {
+        return lastThree;
+      }
+    }
+
+    // UI Helper Functions
+    function showLoading(show) {
+      if (show) {
+        loading.classList.add('show');
+        predictBtn.disabled = true;
+        predictBtn.textContent = 'Predicting...';
+      } else {
+        loading.classList.remove('show');
+        predictBtn.disabled = false;
+        predictBtn.textContent = 'Predict Property Price';
+      }
+    }
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.add('show');
+    }
+
+    function hideError() {
+      errorMessage.classList.remove('show');
+    }
+
+    function hideResult() {
+      resultCard.classList.remove('show');
+    }
+
+    function showValidationError(fieldName, message) {
+      const errorElement = document.getElementById(fieldName + 'Error');
+      const inputElement = document.getElementById(fieldName);
+
+      if (errorElement && inputElement) {
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+        inputElement.classList.add('error');
+      }
+    }
+
+    function clearValidationErrors() {
+      const errorElements = document.querySelectorAll('.validation-error');
+      const inputElements = document.querySelectorAll('.form-input, .form-select');
+
+      errorElements.forEach(el => {
+        el.classList.remove('show');
+        el.textContent = '';
+      });
+
+      inputElements.forEach(el => {
+        el.classList.remove('error');
+      });
+
+      hideError();
+    }
+
+    // Initialize app when page loads
+    document.addEventListener('DOMContentLoaded', initializeApp);
+  </script>
+  <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'99e761d192a6cf38',t:'MTc2MzEzMjQ2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
+</body>
+
+</html>

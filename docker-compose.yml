@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  web:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data:rw
+    environment:
+      - MODEL_PATH=/data/bangalore_home_prices_model.pickle
+      - COLUMNS_PATH=/data/columns.json
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+      - ENABLE_AUDIT_LOGS=false
