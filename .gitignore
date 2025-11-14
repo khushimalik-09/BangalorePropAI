@@ -1,2 +1,7 @@
 .env
-backend/.venv/
+data/*.pickle
+data/*.pkl
+__pycache__/
+node_modules/
+frontend/node_modules/
+*.log
