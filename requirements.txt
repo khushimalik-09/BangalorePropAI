@@ -4,3 +4,4 @@ pydantic==1.10.11
 numpy==1.25.2
 python-multipart==0.0.6
 httpx
+starlette==0.27.0
