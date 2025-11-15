@@ -1,4 +1,6 @@
 # BangalorePropAI - Minimal
+<img width="1920" height="1080" alt="Screenshot (136)" src="https://github.com/user-attachments/assets/5c930579-0cb1-42d4-aee5-344f448178e6" />
+<img width="1920" height="1080" alt="Screenshot (137)" src="https://github.com/user-attachments/assets/46c5c562-754b-4e1e-bd75-7cd094151871" />
 
 ## Prepare
 Place your files:
