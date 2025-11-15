@@ -1,7 +1,8 @@
 # Stage 1: build dependencies
 FROM python:3.11-slim AS builder
 WORKDIR /app
-COPY backend/requirements.txt .
+# copy root requirements.txt (was incorrectly backend/requirements.txt)
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Stage 2: final image
@@ -13,10 +14,10 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 
 # Copy your backend code
 COPY backend/app ./app
+COPY data ./data
 
 # Set Python path and expose port
 ENV PYTHONPATH=/app
 EXPOSE 8000
 
-# Run FastAPI app with Uvicorn
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
